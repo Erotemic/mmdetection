@@ -151,8 +151,8 @@ def bbox2result(bboxes, labels, num_classes):
             np.zeros((0, 5), dtype=np.float32) for i in range(num_classes - 1)
         ]
     else:
-        bboxes = bboxes.cpu().numpy()
-        labels = labels.cpu().numpy()
+        bboxes = bboxes.detach().cpu().numpy()
+        labels = labels.detach().cpu().numpy()
         return [bboxes[labels == i, :] for i in range(num_classes - 1)]
 
 

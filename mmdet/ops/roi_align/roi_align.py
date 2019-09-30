@@ -25,7 +25,8 @@ class RoIAlignFunction(Function):
             roi_align_cuda.forward(features, rois, out_h, out_w, spatial_scale,
                                    sample_num, output)
         else:
-            raise NotImplementedError
+            raise NotImplementedError('cpu RoIAlign is not implemented. '
+                                      'Set use_torchvision=True')
 
         return output
 
