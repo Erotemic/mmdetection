@@ -183,6 +183,7 @@ class ResNeXt(ResNet):
 
     Example:
         >>> from mmdet.models.backbones.resnext import *  # NOQA
+        >>> import torch
         >>> self = ResNeXt(depth=50)
         >>> self.eval()
         >>> inputs = torch.rand(1, 3, 32, 32)
