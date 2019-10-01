@@ -202,6 +202,13 @@ class AnchorHead(nn.Module):
     @force_fp32(apply_to=('cls_scores', 'bbox_preds'))
     def get_bboxes(self, cls_scores, bbox_preds, img_metas, cfg,
                    rescale=False):
+        """
+        Returns:
+            list[Tensor]: result_list each item in result_list is an nx5 tensor,
+                where the first 4 columns are bounding box positions and the
+                5-th column is a score between 0 and 1.
+
+        """
         assert len(cls_scores) == len(bbox_preds)
         num_levels = len(cls_scores)
 
