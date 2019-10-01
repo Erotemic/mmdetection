@@ -176,7 +176,8 @@ class CascadeRCNN(BaseDetector, RPNTestMixin):
                 `mmdet/datasets/pipelines/formatting.py:Collect`.
 
             gt_bboxes (list[Tensor]): each item are the truth boxes for each
-                image in [tl_x, tl_y, br_x, br_y] format.
+                image in [tl_x, tl_y, br_x, br_y] format with respect to the
+                shape of the network input `img`.
 
             gt_labels (list[Tensor]): class indices corresponding to each box
 
