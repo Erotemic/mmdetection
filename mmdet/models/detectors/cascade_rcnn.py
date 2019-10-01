@@ -113,6 +113,13 @@ class CascadeRCNN(BaseDetector, RPNTestMixin):
                 self.mask_head[i].init_weights()
 
     def extract_feat(self, img):
+        """
+        Extracts multiscale backbone features for each input image
+
+        Returns:
+            tuple[tensor]: where the i-th item are the features for all inputs
+                at the i-th scale.
+        """
         x = self.backbone(img)
         if self.with_neck:
             x = self.neck(x)
@@ -309,7 +316,15 @@ class CascadeRCNN(BaseDetector, RPNTestMixin):
             rescale (bool): if True returns boxes in original image space
 
         Returns:
-            dict: results
+            dict: results -
+                if `self.test_cfg.keep_all_stages` and `self.with_mask` are
+                False then results['ensemble'] is a list[Tensor] where the i-th
+                item are the boxes for the i-th class (excluding the background
+                class). Boxes are nx5 tensors where the first 4 columns are
+                [tl_x, tl_y, br_x, br_y] and the 5th column is a score.
+
+                See `mmdet.core.bbox.transforms.bbox2result` for details on
+                result format.
         """
         x = self.extract_feat(img)
 
@@ -331,7 +346,7 @@ class CascadeRCNN(BaseDetector, RPNTestMixin):
         ms_scores = []
         rcnn_test_cfg = self.test_cfg.rcnn
 
-        rois = bbox2roi(proposal_list)
+        rois = bbox2roi(proposal_list)  # shape [batch_ind, x1, y1, x2, y2]
         for i in range(self.num_stages):
             bbox_roi_extractor = self.bbox_roi_extractor[i]
             bbox_head = self.bbox_head[i]
