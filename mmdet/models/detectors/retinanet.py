@@ -4,6 +4,13 @@ from .single_stage import SingleStageDetector
 
 @DETECTORS.register_module
 class RetinaNet(SingleStageDetector):
+    """
+    RetinaNet is a one-stage detector that uses a feature pyramid network on
+    top of a downsampling backbone.
+
+    .. _"Focal loss for dense object detection." ICCV. 2017:
+        https://arxiv.org/abs/1708.02002
+    """
 
     def __init__(self,
                  backbone,
