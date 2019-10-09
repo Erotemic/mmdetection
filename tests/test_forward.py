@@ -1,10 +1,10 @@
-from os.path import dirname
-from os.path import exists
-from os.path import join
-import torch
 import copy
-import numpy as np
+from os.path import dirname, exists, join
+
 import mmcv
+import numpy as np
+import torch
+
 from mmdet.models import build_detector
 
 
@@ -50,8 +50,11 @@ def test_ssd300_forward():
     model, train_cfg, test_cfg = _get_detector_cfg('ssd300_coco.py')
     model['pretrained'] = None
 
-    detector = build_detector(model, train_cfg=mmcv.Config(train_cfg),
-                              test_cfg=mmcv.Config(test_cfg))
+    detector = build_detector(
+        model,
+        train_cfg=mmcv.Config(train_cfg),
+        test_cfg=mmcv.Config(test_cfg)
+    )
 
     input_shape = (1, 3, 300, 300)
     mm_inputs = _demo_mm_inputs(input_shape)
@@ -79,8 +82,11 @@ def test_rpn_forward():
     model, train_cfg, test_cfg = _get_detector_cfg('rpn_r50_fpn_1x.py')
     model['pretrained'] = None
 
-    detector = build_detector(model, train_cfg=mmcv.Config(train_cfg),
-                              test_cfg=mmcv.Config(test_cfg))
+    detector = build_detector(
+        model,
+        train_cfg=mmcv.Config(train_cfg),
+        test_cfg=mmcv.Config(test_cfg)
+    )
 
     input_shape = (1, 3, 224, 224)
     mm_inputs = _demo_mm_inputs(input_shape)
@@ -103,15 +109,16 @@ def test_rpn_forward():
             batch_results.append(result)
 
 
-def test_retina_forward():
-    # model, train_cfg, test_cfg = _get_detector_cfg('retinanet_r50_fpn_1x.py')
-    model, train_cfg, test_cfg = _get_detector_cfg('ghm/retinanet_ghm_r50_fpn_1x.py')
-    # model['bbox_head']['loss_cls'] = dict(
-    #         type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0)
+def test_retina_ghm_forward():
+    model, train_cfg, test_cfg = _get_detector_cfg(
+        'ghm/retinanet_ghm_r50_fpn_1x.py')
     model['pretrained'] = None
 
-    detector = build_detector(model, train_cfg=mmcv.Config(train_cfg),
-                              test_cfg=mmcv.Config(test_cfg))
+    detector = build_detector(
+        model,
+        train_cfg=mmcv.Config(train_cfg),
+        test_cfg=mmcv.Config(test_cfg)
+    )
 
     input_shape = (1, 3, 224, 224)
     mm_inputs = _demo_mm_inputs(input_shape)
@@ -149,7 +156,8 @@ def test_retina_forward():
             img_list = [g[None, :] for g in imgs]
             batch_results = []
             for one_img, one_meta in zip(img_list, img_metas):
-                result = detector.forward([one_img], [one_meta], return_loss=False)
+                result = detector.forward([one_img], [one_meta],
+                                          return_loss=False)
                 batch_results.append(result)
 
 
