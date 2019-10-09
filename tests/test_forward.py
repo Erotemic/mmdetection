@@ -24,6 +24,9 @@ def _get_config_directory():
 
 
 def _get_config_module(fname):
+    """
+    Load a configuration as a python module
+    """
     from xdoctest.utils import import_module_from_path
     config_dpath = _get_config_directory()
     config_fpath = join(config_dpath, fname)
@@ -32,6 +35,10 @@ def _get_config_module(fname):
 
 
 def _get_detector_cfg(fname):
+    """
+    Grab configs necessary to create a detector. These are deep copied to allow
+    for safe modification of parameters without influencing other tests.
+    """
     config = _get_config_module(fname)
     model = copy.deepcopy(config.model)
     train_cfg = copy.deepcopy(config.train_cfg)
@@ -146,7 +153,7 @@ def test_retina_forward():
                 batch_results.append(result)
 
 
-def _demo_mm_inputs(input_shape=(1, 3, 300, 300)):
+def _demo_mm_inputs(input_shape=(1, 3, 300, 300), num_classes=10):
     """
     Create a superset of inputs needed to run test or train batches.
     """
@@ -170,8 +177,6 @@ def _demo_mm_inputs(input_shape=(1, 3, 300, 300)):
 
     gt_bboxes = []
     gt_labels = []
-
-    num_classes = 10
 
     for batch_idx in range(N):
         num_boxes = rng.randint(1, 10)
