@@ -53,8 +53,7 @@ def test_ssd300_forward():
     detector = build_detector(
         model,
         train_cfg=mmcv.Config(train_cfg),
-        test_cfg=mmcv.Config(test_cfg)
-    )
+        test_cfg=mmcv.Config(test_cfg))
 
     input_shape = (1, 3, 300, 300)
     mm_inputs = _demo_mm_inputs(input_shape)
@@ -65,8 +64,12 @@ def test_ssd300_forward():
     # Test forward train
     gt_bboxes = mm_inputs['gt_bboxes']
     gt_labels = mm_inputs['gt_labels']
-    losses = detector.forward(imgs, img_metas, gt_bboxes=gt_bboxes,
-                              gt_labels=gt_labels, return_loss=True)
+    losses = detector.forward(
+        imgs,
+        img_metas,
+        gt_bboxes=gt_bboxes,
+        gt_labels=gt_labels,
+        return_loss=True)
     assert isinstance(losses, dict)
 
     # Test forward test
@@ -85,8 +88,7 @@ def test_rpn_forward():
     detector = build_detector(
         model,
         train_cfg=mmcv.Config(train_cfg),
-        test_cfg=mmcv.Config(test_cfg)
-    )
+        test_cfg=mmcv.Config(test_cfg))
 
     input_shape = (1, 3, 224, 224)
     mm_inputs = _demo_mm_inputs(input_shape)
@@ -96,8 +98,8 @@ def test_rpn_forward():
 
     # Test forward train
     gt_bboxes = mm_inputs['gt_bboxes']
-    losses = detector.forward(imgs, img_metas, gt_bboxes=gt_bboxes,
-                              return_loss=True)
+    losses = detector.forward(
+        imgs, img_metas, gt_bboxes=gt_bboxes, return_loss=True)
     assert isinstance(losses, dict)
 
     # Test forward test
@@ -117,8 +119,7 @@ def test_retina_ghm_forward():
     detector = build_detector(
         model,
         train_cfg=mmcv.Config(train_cfg),
-        test_cfg=mmcv.Config(test_cfg)
-    )
+        test_cfg=mmcv.Config(test_cfg))
 
     input_shape = (1, 3, 224, 224)
     mm_inputs = _demo_mm_inputs(input_shape)
@@ -129,8 +130,12 @@ def test_retina_ghm_forward():
     # Test forward train
     gt_bboxes = mm_inputs['gt_bboxes']
     gt_labels = mm_inputs['gt_labels']
-    losses = detector.forward(imgs, img_metas, gt_bboxes=gt_bboxes,
-                              gt_labels=gt_labels, return_loss=True)
+    losses = detector.forward(
+        imgs,
+        img_metas,
+        gt_bboxes=gt_bboxes,
+        gt_labels=gt_labels,
+        return_loss=True)
     assert isinstance(losses, dict)
 
     # Test forward test
@@ -147,8 +152,12 @@ def test_retina_ghm_forward():
         # Test forward train
         gt_bboxes = [b.cuda() for b in mm_inputs['gt_bboxes']]
         gt_labels = [g.cuda() for g in mm_inputs['gt_labels']]
-        losses = detector.forward(imgs, img_metas, gt_bboxes=gt_bboxes,
-                                  gt_labels=gt_labels, return_loss=True)
+        losses = detector.forward(
+            imgs,
+            img_metas,
+            gt_bboxes=gt_bboxes,
+            gt_labels=gt_labels,
+            return_loss=True)
         assert isinstance(losses, dict)
 
         # Test forward test
@@ -171,17 +180,14 @@ def _demo_mm_inputs(input_shape=(1, 3, 300, 300), num_classes=10):
 
     imgs = rng.rand(*input_shape)
 
-    img_metas = [
-        {
-            'img_shape': (H, W, C),
-            'ori_shape': (H, W, C),
-            'pad_shape': (H, W, C),
-            'filename': '<demo>.png',
-            'scale_factor': 1.0,
-            'flip': False,
-        }
-        for _ in range(N)
-    ]
+    img_metas = [{
+        'img_shape': (H, W, C),
+        'ori_shape': (H, W, C),
+        'pad_shape': (H, W, C),
+        'filename': '<demo>.png',
+        'scale_factor': 1.0,
+        'flip': False,
+    } for _ in range(N)]
 
     gt_bboxes = []
     gt_labels = []
