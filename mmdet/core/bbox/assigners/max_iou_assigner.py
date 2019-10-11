@@ -117,8 +117,8 @@ class MaxIoUAssigner(BaseAssigner):
         if num_gts == 0 or num_bboxes == 0:
             # No ground truth, all boxes do not get assigned
             max_overlaps = overlaps.new()
-            return AssignResult(num_gts, assigned_gt_inds, max_overlaps,
-                                labels=None)
+            return AssignResult(
+                num_gts, assigned_gt_inds, max_overlaps, labels=None)
 
         # for each anchor, which gt best overlaps with it
         # for each anchor, the max iou of all gts

@@ -22,8 +22,8 @@ def test_max_iou_assigner_with_ignore():
     gt_bboxes_ignore = torch.Tensor([
         [30, 30, 40, 40],
     ])
-    assign_result = self.assign(bboxes, gt_bboxes,
-                                gt_bboxes_ignore=gt_bboxes_ignore)
+    assign_result = self.assign(
+        bboxes, gt_bboxes, gt_bboxes_ignore=gt_bboxes_ignore)
 
     expected_gt_inds = torch.LongTensor([1, 0, 2, -1])
     assert torch.all(assign_result.gt_inds == expected_gt_inds)
@@ -43,8 +43,7 @@ def test_max_iou_assigner_with_empty_gt():
         [5, 5, 15, 15],
         [32, 32, 38, 42],
     ])
-    gt_bboxes = torch.FloatTensor([
-    ])
+    gt_bboxes = torch.FloatTensor([])
     assign_result = self.assign(bboxes, gt_bboxes)
 
     expected_gt_inds = torch.LongTensor([-1, -1, -1, -1])
