@@ -146,7 +146,7 @@ def test_retina_ghm_forward():
             result = detector.forward([one_img], [one_meta], return_loss=False)
             batch_results.append(result)
 
-    if torch.cuda.is_available:
+    if torch.cuda.is_available():
         detector = detector.cuda()
         imgs = imgs.cuda()
         # Test forward train
