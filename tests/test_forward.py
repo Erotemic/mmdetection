@@ -1,11 +1,7 @@
 import copy
 from os.path import dirname, exists, join
-
-import mmcv
 import numpy as np
 import torch
-
-from mmdet.models import build_detector
 
 
 def _get_config_directory():
@@ -39,10 +35,11 @@ def _get_detector_cfg(fname):
     Grab configs necessary to create a detector. These are deep copied to allow
     for safe modification of parameters without influencing other tests.
     """
+    import mmcv
     config = _get_config_module(fname)
     model = copy.deepcopy(config.model)
-    train_cfg = copy.deepcopy(config.train_cfg)
-    test_cfg = copy.deepcopy(config.test_cfg)
+    train_cfg = mmcv.Config(copy.deepcopy(config.train_cfg))
+    test_cfg = mmcv.Config(copy.deepcopy(config.test_cfg))
     return model, train_cfg, test_cfg
 
 
@@ -50,10 +47,11 @@ def test_ssd300_forward():
     model, train_cfg, test_cfg = _get_detector_cfg('ssd300_coco.py')
     model['pretrained'] = None
 
+    from mmdet.models import build_detector
     detector = build_detector(
         model,
-        train_cfg=mmcv.Config(train_cfg),
-        test_cfg=mmcv.Config(test_cfg))
+        train_cfg=train_cfg,
+        test_cfg=test_cfg)
 
     input_shape = (1, 3, 300, 300)
     mm_inputs = _demo_mm_inputs(input_shape)
@@ -85,10 +83,11 @@ def test_rpn_forward():
     model, train_cfg, test_cfg = _get_detector_cfg('rpn_r50_fpn_1x.py')
     model['pretrained'] = None
 
+    from mmdet.models import build_detector
     detector = build_detector(
         model,
-        train_cfg=mmcv.Config(train_cfg),
-        test_cfg=mmcv.Config(test_cfg))
+        train_cfg=train_cfg,
+        test_cfg=test_cfg)
 
     input_shape = (1, 3, 224, 224)
     mm_inputs = _demo_mm_inputs(input_shape)
@@ -116,10 +115,11 @@ def test_retina_ghm_forward():
         'ghm/retinanet_ghm_r50_fpn_1x.py')
     model['pretrained'] = None
 
+    from mmdet.models import build_detector
     detector = build_detector(
         model,
-        train_cfg=mmcv.Config(train_cfg),
-        test_cfg=mmcv.Config(test_cfg))
+        train_cfg=train_cfg,
+        test_cfg=test_cfg)
 
     input_shape = (1, 3, 224, 224)
     mm_inputs = _demo_mm_inputs(input_shape)
