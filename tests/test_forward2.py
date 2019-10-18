@@ -47,7 +47,8 @@ def _get_detector_cfg(fname):
 
 
 def test_cascade_empty_forward():
-    model, train_cfg, test_cfg = _get_detector_cfg('cascade_rcnn_r50_fpn_1x.py')
+    model, train_cfg, test_cfg = _get_detector_cfg(
+        'cascade_rcnn_r50_fpn_1x.py')
     model['pretrained'] = None
     # torchvision roi align supports CPU
     model['bbox_roi_extractor']['roi_layer']['use_torchvision'] = True
@@ -64,7 +65,10 @@ def test_cascade_empty_forward():
     gt_bboxes = mm_inputs['gt_bboxes']
     gt_labels = mm_inputs['gt_labels']
     losses = detector.forward(
-        imgs, img_metas, gt_bboxes=gt_bboxes, gt_labels=gt_labels,
+        imgs,
+        img_metas,
+        gt_bboxes=gt_bboxes,
+        gt_labels=gt_labels,
         return_loss=True)
     assert isinstance(losses, dict)
     from mmdet.apis.train import parse_losses
@@ -78,7 +82,10 @@ def test_cascade_empty_forward():
     gt_bboxes = mm_inputs['gt_bboxes']
     gt_labels = mm_inputs['gt_labels']
     losses = detector.forward(
-        imgs, img_metas, gt_bboxes=gt_bboxes, gt_labels=gt_labels,
+        imgs,
+        img_metas,
+        gt_bboxes=gt_bboxes,
+        gt_labels=gt_labels,
         return_loss=True)
     assert isinstance(losses, dict)
     from mmdet.apis.train import parse_losses
@@ -104,7 +111,10 @@ def test_faster_rcnn_empty_forward():
     gt_bboxes = mm_inputs['gt_bboxes']
     gt_labels = mm_inputs['gt_labels']
     losses = detector.forward(
-        imgs, img_metas, gt_bboxes=gt_bboxes, gt_labels=gt_labels,
+        imgs,
+        img_metas,
+        gt_bboxes=gt_bboxes,
+        gt_labels=gt_labels,
         return_loss=True)
     assert isinstance(losses, dict)
     from mmdet.apis.train import parse_losses
@@ -118,7 +128,10 @@ def test_faster_rcnn_empty_forward():
     gt_bboxes = mm_inputs['gt_bboxes']
     gt_labels = mm_inputs['gt_labels']
     losses = detector.forward(
-        imgs, img_metas, gt_bboxes=gt_bboxes, gt_labels=gt_labels,
+        imgs,
+        img_metas,
+        gt_bboxes=gt_bboxes,
+        gt_labels=gt_labels,
         return_loss=True)
     assert isinstance(losses, dict)
     from mmdet.apis.train import parse_losses
@@ -126,8 +139,8 @@ def test_faster_rcnn_empty_forward():
     assert total_loss > 0
 
 
-def _demo_mm_inputs(input_shape=(1, 3, 300, 300), num_items=None,
-                    num_classes=10):
+def _demo_mm_inputs(
+        input_shape=(1, 3, 300, 300), num_items=None, num_classes=10):
     """
     Create a superset of inputs needed to run test or train batches.
 

@@ -1,31 +1,43 @@
-import torch
 import mmcv
+import torch
+
 from mmdet.models.anchor_heads import AnchorHead
 
 
 def test_anchor_head_loss():
     self = AnchorHead(num_classes=4, in_channels=1)
     s = 256
-    img_metas = [{'img_shape': (s, s, 3), 'scale_factor': 1,
-                  'pad_shape': (s, s, 3)}]
+    img_metas = [{
+        'img_shape': (s, s, 3),
+        'scale_factor': 1,
+        'pad_shape': (s, s, 3)
+    }]
 
-    cfg = mmcv.Config({'assigner': {'type': 'MaxIoUAssigner',
-                                    'pos_iou_thr': 0.7,
-                                    'neg_iou_thr': 0.3,
-                                    'min_pos_iou': 0.3,
-                                    'ignore_iof_thr': -1},
-                       'sampler': {'type': 'RandomSampler',
-                                   'num': 256,
-                                   'pos_fraction': 0.5,
-                                   'neg_pos_ub': -1,
-                                   'add_gt_as_proposals': False},
-                       'allowed_border': 0,
-                       'pos_weight': -1,
-                       'debug': False})
+    cfg = mmcv.Config({
+        'assigner': {
+            'type': 'MaxIoUAssigner',
+            'pos_iou_thr': 0.7,
+            'neg_iou_thr': 0.3,
+            'min_pos_iou': 0.3,
+            'ignore_iof_thr': -1
+        },
+        'sampler': {
+            'type': 'RandomSampler',
+            'num': 256,
+            'pos_fraction': 0.5,
+            'neg_pos_ub': -1,
+            'add_gt_as_proposals': False
+        },
+        'allowed_border': 0,
+        'pos_weight': -1,
+        'debug': False
+    })
 
     # Anchor head expects a multiple levels of features per image
-    feat = [torch.rand(1, 1, s // (2 ** (i + 2)), s // (2 ** (i + 2)))
-            for i in range(len(self.anchor_generators))]
+    feat = [
+        torch.rand(1, 1, s // (2**(i + 2)), s // (2**(i + 2)))
+        for i in range(len(self.anchor_generators))
+    ]
     cls_scores, bbox_preds = self.forward(feat)
 
     # Test that empty ground truth encourages the network to predict background
