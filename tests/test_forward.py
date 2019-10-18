@@ -1,5 +1,6 @@
 import copy
 from os.path import dirname, exists, join
+
 import numpy as np
 import torch
 
@@ -48,10 +49,7 @@ def test_ssd300_forward():
     model['pretrained'] = None
 
     from mmdet.models import build_detector
-    detector = build_detector(
-        model,
-        train_cfg=train_cfg,
-        test_cfg=test_cfg)
+    detector = build_detector(model, train_cfg=train_cfg, test_cfg=test_cfg)
 
     input_shape = (1, 3, 300, 300)
     mm_inputs = _demo_mm_inputs(input_shape)
@@ -84,10 +82,7 @@ def test_rpn_forward():
     model['pretrained'] = None
 
     from mmdet.models import build_detector
-    detector = build_detector(
-        model,
-        train_cfg=train_cfg,
-        test_cfg=test_cfg)
+    detector = build_detector(model, train_cfg=train_cfg, test_cfg=test_cfg)
 
     input_shape = (1, 3, 224, 224)
     mm_inputs = _demo_mm_inputs(input_shape)
@@ -116,10 +111,7 @@ def test_retina_ghm_forward():
     model['pretrained'] = None
 
     from mmdet.models import build_detector
-    detector = build_detector(
-        model,
-        train_cfg=train_cfg,
-        test_cfg=test_cfg)
+    detector = build_detector(model, train_cfg=train_cfg, test_cfg=test_cfg)
 
     input_shape = (1, 3, 224, 224)
     mm_inputs = _demo_mm_inputs(input_shape)
