@@ -48,7 +48,7 @@ def _get_detector_cfg(fname):
 
 def test_cascade_empty_forward():
     try:
-        import torchvision  # NOQA
+        from torchvision import _C as C  # NOQA
     except ImportError:
         import pytest
         raise pytest.skip('requires torchvision on cpu')
@@ -101,7 +101,7 @@ def test_cascade_empty_forward():
 
 def test_faster_rcnn_empty_forward():
     try:
-        import torchvision  # NOQA
+        from torchvision import _C as C  # NOQA
     except ImportError:
         import pytest
         raise pytest.skip('requires torchvision on cpu')
