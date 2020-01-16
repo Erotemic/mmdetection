@@ -1,0 +1,31 @@
+ln -s $HOME/data/VOC $HOME/code/mmdetection/data 
+
+cd ~/code/mmdetection
+python tools/train.py configs/pascal_voc/faster_rcnn_r50_fpn_1x_voc0712.py
+python tools/dist_train.py configs/pascal_voc/faster_rcnn_r50_fpn_1x_voc0712.py 2
+
+python tools/train.py configs/pascal_voc/cascade_rcnn_r50_fpn_1x.py
+
+
+img_meta can contain: 
+    See mmdet/datasets/pipelines/formatting.py:Collect for default meta keys
+    ['filename', 'ori_shape', 'img_shape', 'pad_shape', 'scale_factor', 'flip', 'img_norm_cfg']
+
+    See mmdet/datasets/pipelines/formatting.py:Collect for default meta keys
+
+    - "img_shape": original image shape as a tuple in (h, w, c)
+
+    - "scale_factor": a float indicating the preprocessing scale
+
+    - "flip": a boolean indicating if image flip transform was used
+
+    - "filename": path to the image file
+
+    - "ori_shape": original shape of the image as a tuple (h, w, c)
+
+    - "pad_shape": image shape after padding
+
+    - "img_norm_cfg": a dict of normalization information:
+        - mean - per channel mean subtraction
+        - std - per channel std divisor
+        - to_rgb - bool indicating if bgr was converted to rgb

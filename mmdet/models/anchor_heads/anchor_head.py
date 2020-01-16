@@ -28,6 +28,10 @@ class AnchorHead(nn.Module):
         target_stds (Iterable): Std values of regression targets.
         loss_cls (dict): Config of classification loss.
         loss_bbox (dict): Config of localization loss.
+
+    Example:
+        >>> import mmcv
+        >>> self = AnchorHead(num_classes=9, in_channels=1)
     """  # noqa: W605
 
     def __init__(self,

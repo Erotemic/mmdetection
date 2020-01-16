@@ -74,5 +74,6 @@ class BaseSampler(metaclass=ABCMeta):
             assign_result, num_expected_neg, bboxes=bboxes, **kwargs)
         neg_inds = neg_inds.unique()
 
-        return SamplingResult(pos_inds, neg_inds, bboxes, gt_bboxes,
-                              assign_result, gt_flags)
+        sampling_result = SamplingResult(pos_inds, neg_inds, bboxes, gt_bboxes,
+                                         assign_result, gt_flags)
+        return sampling_result

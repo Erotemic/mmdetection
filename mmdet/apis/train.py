@@ -81,6 +81,44 @@ def parse_losses(losses):
     return loss, log_vars
 
 
+def _report_data_shape(data):
+    import ubelt as ub
+
+    def _recurse(d):
+        import torch
+        import numpy as np
+        if isinstance(d, dict):
+            return ub.odict(sorted([(k, _recurse(v)) for k, v in d.items()]))
+        elif type(d).__name__.endswith('DataContainer'):
+            meta = ub.odict(sorted([
+                ('stack', d.stack),
+                ('padding_value', d.padding_value),
+                ('pad_dims', d.pad_dims),
+                ('datatype', d.datatype),
+                ('cpu_only', d.cpu_only),
+            ]))
+            meta = ub.repr2(meta, nl=0)
+            return {'DataContainer' + meta: _recurse(d.data)}
+        elif isinstance(d, list):
+            return [_recurse(v) for v in d]
+        elif isinstance(d, tuple):
+            return tuple([_recurse(v) for v in d])
+        elif isinstance(d, torch.Tensor):
+            return d.shape
+        elif isinstance(d, np.ndarray):
+            return d.shape
+        elif isinstance(d, str):
+            return d
+        elif isinstance(d, (int, float)):
+            return d
+        else:
+            raise TypeError(type(d))
+
+    globals()['_recurse'] = _recurse
+    d = _recurse(data)
+    print('d = {}'.format(ub.repr2(d, nl=-2)))
+
+
 def batch_processor(model, data, train_mode):
     """Process a data batch.
 
@@ -97,6 +135,15 @@ def batch_processor(model, data, train_mode):
     Returns:
         dict: A dict containing losses and log vars.
     """
+    import xdev
+    xdev.embed()
+
+    _report_data_shape(data)
+
+    self = model
+    _inputs, _kwargs = self.scatter(tuple(), data, self.device_ids)
+    _report_data_shape(_kwargs)
+
     losses = model(**data)
     loss, log_vars = parse_losses(losses)
 
