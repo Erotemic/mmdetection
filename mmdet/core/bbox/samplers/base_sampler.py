@@ -47,11 +47,33 @@ class BaseSampler(metaclass=ABCMeta):
 
         Returns:
             :obj:`SamplingResult`: Sampling result.
+
+        Example:
+            from mmdet.core.bbox.samplers.random_sampler import RandomSampler
+            from mmdet.core.bbox.assigners.assign_result import AssignResult
+            from mmdet.core.bbox import demodata
+            rng = demodata.ensure_rng(kwargs.pop('rng', None))
+
+
+            bboxes = demodata.random_boxes(assign_result.num_preds, rng=rng)
+            gt_bboxes = demodata.random_boxes(assign_result.num_gts, rng=rng)
+
+            assign_result = AssignResult.random(**kwargs)
+            gt_labels = None
+            assign_result.labels = None
+
+            self = RandomSampler(num=32, pos_fraction=0.5, neg_pos_ub=-1,
+                                 add_gt_as_proposals=True)
+            self = self.sample(assign_result, bboxes, gt_bboxes, gt_labels)
+
         """
         bboxes = bboxes[:, :4]
 
         gt_flags = bboxes.new_zeros((bboxes.shape[0], ), dtype=torch.uint8)
         if self.add_gt_as_proposals and len(gt_bboxes) > 0:
+            if gt_labels is None:
+                raise ValueError(
+                    'gt_labels must be given when add_gt_as_proposals is True')
             bboxes = torch.cat([gt_bboxes, bboxes], dim=0)
             assign_result.add_gt_(gt_labels)
             gt_ones = bboxes.new_ones(gt_bboxes.shape[0], dtype=torch.uint8)
@@ -74,5 +96,6 @@ class BaseSampler(metaclass=ABCMeta):
             assign_result, num_expected_neg, bboxes=bboxes, **kwargs)
         neg_inds = neg_inds.unique()
 
-        return SamplingResult(pos_inds, neg_inds, bboxes, gt_bboxes,
-                              assign_result, gt_flags)
+        sampling_result = SamplingResult(pos_inds, neg_inds, bboxes, gt_bboxes,
+                                         assign_result, gt_flags)
+        return sampling_result

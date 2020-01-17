@@ -46,21 +46,23 @@ def anchor_target(anchor_list,
         gt_bboxes_ignore_list = [None for _ in range(num_imgs)]
     if gt_labels_list is None:
         gt_labels_list = [None for _ in range(num_imgs)]
-    (all_labels, all_label_weights, all_bbox_targets, all_bbox_weights,
-     pos_inds_list, neg_inds_list) = multi_apply(
-         anchor_target_single,
-         anchor_list,
-         valid_flag_list,
-         gt_bboxes_list,
-         gt_bboxes_ignore_list,
-         gt_labels_list,
-         img_metas,
-         target_means=target_means,
-         target_stds=target_stds,
-         cfg=cfg,
-         label_channels=label_channels,
-         sampling=sampling,
-         unmap_outputs=unmap_outputs)
+    import xdev
+    with xdev.embed_on_exception_context:
+        (all_labels, all_label_weights, all_bbox_targets, all_bbox_weights,
+         pos_inds_list, neg_inds_list) = multi_apply(
+             anchor_target_single,
+             anchor_list,
+             valid_flag_list,
+             gt_bboxes_list,
+             gt_bboxes_ignore_list,
+             gt_labels_list,
+             img_metas,
+             target_means=target_means,
+             target_stds=target_stds,
+             cfg=cfg,
+             label_channels=label_channels,
+             sampling=sampling,
+             unmap_outputs=unmap_outputs)
     # no valid anchors
     if any([labels is None for labels in all_labels]):
         return None
@@ -112,8 +114,10 @@ def anchor_target_single(flat_anchors,
     anchors = flat_anchors[inside_flags, :]
 
     if sampling:
-        assign_result, sampling_result = assign_and_sample(
-            anchors, gt_bboxes, gt_bboxes_ignore, None, cfg)
+        import xdev
+        with xdev.embed_on_exception_context:
+            assign_result, sampling_result = assign_and_sample(
+                anchors, gt_bboxes, gt_bboxes_ignore, None, cfg)
     else:
         bbox_assigner = build_assigner(cfg.assigner)
         assign_result = bbox_assigner.assign(anchors, gt_bboxes,

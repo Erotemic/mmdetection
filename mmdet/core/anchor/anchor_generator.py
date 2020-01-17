@@ -12,6 +12,14 @@ class AnchorGenerator(object):
                 [16.,  0., 24.,  8.],
                 [ 0., 16.,  8., 24.],
                 [16., 16., 24., 24.]])
+
+        >>> from mmdet.core import AnchorGenerator
+        >>> self = AnchorGenerator(8, [2, 4], [1.0])
+        >>> tlbr = self.grid_anchors((2, 2), stride=2, device='cpu')
+
+        import kwimage
+        kwimage.Boxes(tlbr, 'tlbr').to_cxywh()
+        kwimage.Boxes(self.gen_base_anchors(), 'tlbr').to_cxywh()
     """
 
     def __init__(self, base_size, scales, ratios, scale_major=True, ctr=None):
