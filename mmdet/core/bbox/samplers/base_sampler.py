@@ -49,24 +49,21 @@ class BaseSampler(metaclass=ABCMeta):
             :obj:`SamplingResult`: Sampling result.
 
         Example:
-            from mmdet.core.bbox.samplers.random_sampler import RandomSampler
-            from mmdet.core.bbox.assigners.assign_result import AssignResult
-            from mmdet.core.bbox import demodata
-            rng = demodata.ensure_rng(kwargs.pop('rng', None))
-
-
-            bboxes = demodata.random_boxes(assign_result.num_preds, rng=rng)
-            gt_bboxes = demodata.random_boxes(assign_result.num_gts, rng=rng)
-
-            assign_result = AssignResult.random(**kwargs)
-            gt_labels = None
-            assign_result.labels = None
-
-            self = RandomSampler(num=32, pos_fraction=0.5, neg_pos_ub=-1,
-                                 add_gt_as_proposals=True)
-            self = self.sample(assign_result, bboxes, gt_bboxes, gt_labels)
-
+            >>> from mmdet.core.bbox.samplers.random_sampler import RandomSampler
+            >>> from mmdet.core.bbox.assigners.assign_result import AssignResult
+            >>> from mmdet.core.bbox import demodata
+            >>> rng = demodata.ensure_rng(None)
+            >>> assign_result = AssignResult.random(rng=rng)
+            >>> bboxes = demodata.random_boxes(assign_result.num_preds, rng=rng)
+            >>> gt_bboxes = demodata.random_boxes(assign_result.num_gts, rng=rng)
+            >>> gt_labels = None
+            >>> self = RandomSampler(num=32, pos_fraction=0.5, neg_pos_ub=-1,
+            >>>                      add_gt_as_proposals=False)
+            >>> self = self.sample(assign_result, bboxes, gt_bboxes, gt_labels)
         """
+        if len(bboxes.shape) < 2:
+            bboxes = bboxes[None, :]
+
         bboxes = bboxes[:, :4]
 
         gt_flags = bboxes.new_zeros((bboxes.shape[0], ), dtype=torch.uint8)
