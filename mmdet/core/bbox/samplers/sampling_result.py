@@ -41,13 +41,7 @@ class SamplingResult(ub.NiceRepr):
         self.num_gts = gt_bboxes.shape[0]
         self.pos_assigned_gt_inds = assign_result.gt_inds[pos_inds] - 1
 
-        FIX = 1
-        if 0:
-            print('FIX = {!r}'.format(FIX))
-            print('self.pos_assigned_gt_inds = {!r}'.format(self.pos_assigned_gt_inds))
-            print('assign_result = {!r}'.format(assign_result))
-            print('gt_bboxes = {!r}'.format(gt_bboxes))
-        if FIX and gt_bboxes.numel() == 0:
+        if gt_bboxes.numel() == 0:
             # hack for index error case
             assert self.pos_assigned_gt_inds.numel() == 0
             self.pos_gt_bboxes = torch.empty_like(gt_bboxes).view(-1, 4)
@@ -68,17 +62,18 @@ class SamplingResult(ub.NiceRepr):
 
     def to(self, device):
         """
-        Change the device of the data
+        Change the device of the data inplace.
 
         Example:
             >>> self = SamplingResult.random()
-            >>> print('self = {}'.format(self))
+            >>> print('self = {}'.format(self.to(None)))
             >>> # xdoctest: +REQUIRES(--gpu)
             >>> print('self = {}'.format(self.to(0)))
         """
-        for key, value in self.__data__.items():
+        _dict = self.__dict__
+        for key, value in _dict.items():
             if isinstance(value, torch.Tensor):
-                value.to(device)
+                _dict[key] = value.to(device)
         return self
 
     def __nice__(self):
@@ -134,20 +129,10 @@ class SamplingResult(ub.NiceRepr):
                 self = SamplingResult.random(rng=i)
 
             self = SamplingResult.random(rng=11)
-
-            # Test if random number generator is seeded or not.
-            c, N = 0, 1000
-            for _ in ub.ProgIter(range(N)):
-                try:
-                    self = SamplingResult.random(rng=10)
-                except Exception:
-                    c += 1
-            print(f'{c / N}% of random runs fail')
         """
         from mmdet.core.bbox.samplers.random_sampler import RandomSampler
         from mmdet.core.bbox.assigners.assign_result import AssignResult
         from mmdet.core.bbox import demodata
-        rng = 17
         rng = demodata.ensure_rng(rng)
 
         # make probabalistic?
@@ -161,7 +146,7 @@ class SamplingResult(ub.NiceRepr):
         bboxes = demodata.random_boxes(assign_result.num_preds, rng=rng)
         gt_bboxes = demodata.random_boxes(assign_result.num_gts, rng=rng)
 
-        if rng.rand() > 0.5:
+        if rng.rand() > 0.2:
             # sometimes algorithms squeeze their data, be robust to that
             gt_bboxes = gt_bboxes.squeeze()
             bboxes = bboxes.squeeze()
