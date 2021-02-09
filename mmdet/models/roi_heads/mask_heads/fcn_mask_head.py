@@ -22,39 +22,42 @@ class FCNMaskHead(nn.Module):
 
     Example:
         >>> from mmdet.models.roi_heads.mask_heads.fcn_mask_head import *  # NOQA
+        >>> # Targets and chips have already been extracted and flattened
+        >>> N = 7  # N = number of extracted chips
+        >>> C, H, W = 11, 32, 32
         >>> # Create example instance of FCN Mask Head.
         >>> # There are lots of variations depending on the configuration
-        >>> self = FCNMaskHead(num_classes=11, num_convs=1)
-        >>> bsize = 1
-        >>> inputs = torch.rand(bsize, self.in_channels, 14, 14)
+        >>> self = FCNMaskHead(num_classes=C, num_convs=1)
+        >>> inputs = torch.rand(N, self.in_channels, H, W)
         >>> mask_pred = self.forward(inputs)
+        >>> sf = self.scale_factor
+        >>> labels = torch.randint(0, C, size=(N,))
+        >>> # With the default properties the mask targets should indicate
+        >>> # a (potentially soft) single-class label
+        >>> mask_targets = torch.rand(N, H * sf, W * sf)
+        >>> loss = self.loss(mask_pred, mask_targets, labels)
+        >>> print('loss = {!r}'.format(loss))
 
-        >>> det_bboxes = torch.Tensor([
-        >>>     [1, 1, 42, 42 ],
-        >>>     [10, 10, 32, 32 ],
-        >>> ])
-        >>> labels = torch.LongTensor([
-        >>>     2, 4
-        >>> ])
+        >>> # ----
+        >>> # get_sseg_masks
+        >>> # ----
+        >>> det_bboxes = torch.Tensor(
+        >>>     [
+        >>>         [1, 1, 42, 42 ]
+        >>>         for _ in range(N)
+        >>>     ])
+        >>> det_labels = torch.randint(0, C, size=(N,))
 
-        >>> self.loss(mask_pred, mask_targets, labels)
+        >>> import mmcv
+        >>> rcnn_test_cfg = mmcv.Config({'mask_thr_binary': 0, })
+        >>> ori_shape = (H * 4, W * 4)
+        >>> scale_factor = torch.FloatTensor((1, 1))
+        >>> rescale = False
+        >>> encoded_masks = self.get_seg_masks(
+        >>>     mask_pred, det_bboxes, det_labels, rcnn_test_cfg, ori_shape,
+        >>>     scale_factor, rescale
+        >>> )
 
-        _tmp = torch.rand(*mask_pred.shape)
-        mask_targets = _tmp.max(dim=1, keepdim=True)[1]
-
-        fidx = mask_targets_idx.transpose(0, 1).view(-1)
-        flat = tmp.transpose(0, 1).view(11, -1)
-        flat[:, fidx]
-        flat.shape
-        .shape
-        -1, 11)
-        mask_targets_idx
-        .shape
-
-        mask_targets / mask_targets.sum(dim=1, keepdims=True)
-        .shape
-
-        >>> self.loss(mask_pred, mask_targets, labels)
     """
 
     def __init__(self,
@@ -174,6 +177,25 @@ class FCNMaskHead(nn.Module):
 
     @force_fp32(apply_to=('mask_pred', ))
     def loss(self, mask_pred, mask_targets, labels):
+        """
+        Example:
+            >>> from mmdet.models.roi_heads.mask_heads.fcn_mask_head import *  # NOQA
+            >>> # Targets and chips have already been extracted and flattened
+            >>> N = 7  # N = number of extracted chips
+            >>> C, H, W = 11, 32, 32
+            >>> # Create example instance of FCN Mask Head.
+            >>> # There are lots of variations depending on the configuration
+            >>> self = FCNMaskHead(num_classes=C, num_convs=1)
+            >>> inputs = torch.rand(N, self.in_channels, H, W)
+            >>> mask_pred = self.forward(inputs)
+            >>> sf = self.scale_factor
+            >>> labels = torch.randint(0, C, size=(N,))
+            >>> # With the default properties the mask targets should indicate
+            >>> # a (potentially soft) single-class label
+            >>> mask_targets = torch.rand(N, H * sf, W * sf)
+            >>> loss = self.loss(mask_pred, mask_targets, labels)
+            >>> print('loss = {!r}'.format(loss))
+        """
         loss = dict()
         if mask_pred.size(0) == 0:
             loss_mask = mask_pred.sum()
