@@ -54,9 +54,11 @@ class FCNMaskHead(nn.Module):
         >>> scale_factor = torch.FloatTensor((1, 1))
         >>> rescale = False
         >>> encoded_masks = self.get_seg_masks(
-        >>>     mask_pred, det_bboxes, det_labels, rcnn_test_cfg, ori_shape,
+        >>>     mask_pred.abs() + 10, det_bboxes, det_labels, rcnn_test_cfg, ori_shape,
         >>>     scale_factor, rescale
         >>> )
+
+        # Encoded masks are a list for each category.
 
     """
 
