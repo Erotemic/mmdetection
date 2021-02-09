@@ -25,6 +25,13 @@ class TwoStageDetector(BaseDetector):
         super(TwoStageDetector, self).__init__()
         self.backbone = build_backbone(backbone)
 
+        if isinstance(test_cfg, dict):
+            import mmcv
+            test_cfg = mmcv.Config(test_cfg)
+        if isinstance(train_cfg, dict):
+            import mmcv
+            train_cfg = mmcv.Config(train_cfg)
+
         if neck is not None:
             self.neck = build_neck(neck)
 

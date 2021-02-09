@@ -18,6 +18,44 @@ GPU_MEM_LIMIT = 1024**3  # 1 GB memory limit
 
 @HEADS.register_module()
 class FCNMaskHead(nn.Module):
+    """
+
+    Example:
+        >>> from mmdet.models.roi_heads.mask_heads.fcn_mask_head import *  # NOQA
+        >>> # Create example instance of FCN Mask Head.
+        >>> # There are lots of variations depending on the configuration
+        >>> self = FCNMaskHead(num_classes=11, num_convs=1)
+        >>> bsize = 1
+        >>> inputs = torch.rand(bsize, self.in_channels, 14, 14)
+        >>> mask_pred = self.forward(inputs)
+
+        >>> det_bboxes = torch.Tensor([
+        >>>     [1, 1, 42, 42 ],
+        >>>     [10, 10, 32, 32 ],
+        >>> ])
+        >>> labels = torch.LongTensor([
+        >>>     2, 4
+        >>> ])
+
+        >>> self.loss(mask_pred, mask_targets, labels)
+
+        _tmp = torch.rand(*mask_pred.shape)
+        mask_targets = _tmp.max(dim=1, keepdim=True)[1]
+
+        fidx = mask_targets_idx.transpose(0, 1).view(-1)
+        flat = tmp.transpose(0, 1).view(11, -1)
+        flat[:, fidx]
+        flat.shape
+        .shape
+        -1, 11)
+        mask_targets_idx
+        .shape
+
+        mask_targets / mask_targets.sum(dim=1, keepdims=True)
+        .shape
+
+        >>> self.loss(mask_pred, mask_targets, labels)
+    """
 
     def __init__(self,
                  num_convs=4,

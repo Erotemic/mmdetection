@@ -4,7 +4,13 @@ from .two_stage import TwoStageDetector
 
 @DETECTORS.register_module()
 class MaskRCNN(TwoStageDetector):
-    """Implementation of `Mask R-CNN <https://arxiv.org/abs/1703.06870>`_"""
+    """
+    Implementation of `Mask R-CNN <https://arxiv.org/abs/1703.06870>`_
+
+    Example:
+        norm_cfg = dict(type='BN', requires_grad=False)
+
+    """
 
     def __init__(self,
                  backbone,
