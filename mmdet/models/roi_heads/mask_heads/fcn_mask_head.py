@@ -169,6 +169,9 @@ class FCNMaskHead(nn.Module):
         return mask_pred
 
     def get_targets(self, sampling_results, gt_masks, rcnn_train_cfg):
+        """
+        rcnn_train_cfg = {'mask_size': 14}
+        """
         pos_proposals = [res.pos_bboxes for res in sampling_results]
         pos_assigned_gt_inds = [
             res.pos_assigned_gt_inds for res in sampling_results

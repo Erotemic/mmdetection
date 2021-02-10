@@ -91,7 +91,8 @@ class BaseInstanceMasks(metaclass=ABCMeta):
         Args:
             bboxes (Tensor): Bboxes in format [x1, y1, x2, y2], shape (N, 4)
             out_shape (tuple[int]): Target (h, w) of resized mask
-            inds (ndarray): Indexes to assign masks to each bbox
+            inds (ndarray): Indexes to assign masks to each bbox,
+                shape (N,) and values should be between [0, num_masks - 1].
             device (str): Device of bboxes
             interpolation (str): See `mmcv.imresize`
 
@@ -205,6 +206,24 @@ class BitmapMasks(BaseInstanceMasks):
             the number of objects.
         height (int): height of masks
         width (int): width of masks
+
+    Example:
+        >>> from mmdet.core.mask.structures import *  # NOQA
+        >>> num_masks, H, W = 3, 32, 32
+        >>> rng = np.random.RandomState(0)
+        >>> masks = (rng.rand(num_masks, H, W) > 0.1).astype(np.int)
+        >>> self = BitmapMasks(masks, height=H, width=W)
+
+        >>> # demo crop_and_resize
+        >>> num_boxes = 5
+        >>> bboxes = np.array([[0, 0, 30, 10.0]] * num_boxes)
+        >>> out_shape = (14, 14)
+        >>> inds = torch.randint(0, len(self), size=(num_boxes,))
+        >>> device = 'cpu'
+        >>> interpolation = 'bilinear'
+        >>> new = self.crop_and_resize(
+        ...     bboxes, out_shape, inds, device, interpolation)
+        >>> assert len(new) == num_boxes
     """
 
     def __init__(self, masks, height, width):
@@ -323,7 +342,7 @@ class BitmapMasks(BaseInstanceMasks):
                         out_shape,
                         inds,
                         device='cpu',
-                        interpolation='bilinear'):
+                        interpolation='bilinear', rounded=True):
         """See :func:`BaseInstanceMasks.crop_and_resize`."""
         if len(self.masks) == 0:
             empty_masks = np.empty((0, *out_shape), dtype=np.uint8)
@@ -345,7 +364,10 @@ class BitmapMasks(BaseInstanceMasks):
                 0, inds).to(dtype=rois.dtype)
             targets = roi_align(gt_masks_th[:, None, :, :], rois, out_shape,
                                 1.0, 0, 'avg', True).squeeze(1)
-            resized_masks = (targets >= 0.5).cpu().numpy()
+            if rounded:
+                resized_masks = (targets >= 0.5).cpu().numpy()
+            else:
+                resized_masks = targets.cpu().numpy()
         else:
             resized_masks = []
         return BitmapMasks(resized_masks, *out_shape)
@@ -490,6 +512,28 @@ class PolygonMasks(BaseInstanceMasks):
             compose the object, the third level to the poly coordinates
         height (int): height of masks
         width (int): width of masks
+
+    Example:
+        >>> from mmdet.core.mask.structures import *  # NOQA
+        >>> masks = [
+        >>>     [ np.array([0, 0, 10, 0, 10, 10., 0, 10, 0, 0]) ]
+        >>> ]
+        >>> height, width = 16, 16
+        >>> self = PolygonMasks(masks, height, width)
+
+        >>> # demo translate
+        >>> new = self.translate((16, 16), 4., direction='horizontal')
+        >>> assert np.all(new.masks[0][0][1::2] == masks[0][0][1::2])
+        >>> assert np.all(new.masks[0][0][0::2] == masks[0][0][0::2] + 4)
+
+        >>> # demo crop_and_resize
+        >>> bboxes = np.array([[0, 0, 30, 10.0]] * 3)
+        >>> out_shape = (16, 16)
+        >>> inds = torch.LongTensor([0, 0, 0])
+        >>> device = 'cpu'
+        >>> interpolation = 'bilinear'
+        >>> new = self.crop_and_resize(
+        ...     bboxes, out_shape, inds, device, interpolation)
     """
 
     def __init__(self, masks, height, width):
